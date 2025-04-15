@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Reader extends Model
 {
     use HasFactory;
+    protected $table = 'readers';
+
+
+    protected $fillable = [
+        'name',
+        'email',
+    ];
 }
