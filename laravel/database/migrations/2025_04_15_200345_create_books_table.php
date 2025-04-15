@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->foreignId('author_id')->constrained()->onDelete('cascade');
-            $table->date('published_at')->nullable();
+            $table->integer('published_year')->nullable();
             $table->timestamps();
         });
     }
