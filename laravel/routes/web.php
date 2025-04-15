@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\CatController;
+
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -18,3 +20,9 @@ Route::get('/', function () {
 });
 
 Route::get('/test', [TestController::class, 'test']);
+
+Route::get('cats', [CatController::class, 'getAll']);
+Route::get('cats/{id}', [CatController::class, 'getById']);
+Route::post('cats', [CatController::class, 'create']);
+Route::put('cats/{id}', [CatController::class, 'update']);
+Route::delete('cats/{id}', [CatController::class, 'delete']);
