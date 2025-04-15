@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  mysql_laravel:
+    image: mysql:8.0
+    container_name: mysql_laravel
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    ports:
+      - "3307:3306"
+    volumes:
+      - laravel_db_data:/var/lib/mysql
+
+  mysql_symfony:
+    image: mysql:8.0
+    container_name: mysql_symfony
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: symfony_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    ports:
+      - "3308:3306"
+    volumes:
+      - symfony_db_data:/var/lib/mysql
+
+volumes:
+  laravel_db_data:
+  symfony_db_data:
