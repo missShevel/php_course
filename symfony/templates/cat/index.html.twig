@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cat index{% endblock %}
+
+{% block body %}
+    <h1>Cat index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Breed</th>
+                <th>Color</th>
+                <th>Character</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for cat in cats %}
+            <tr>
+                <td>{{ cat.id }}</td>
+                <td>{{ cat.name }}</td>
+                <td>{{ cat.age }}</td>
+                <td>{{ cat.breed }}</td>
+                <td>{{ cat.color }}</td>
+                <td>{{ cat.character }}</td>
+                <td>
+                    <a href="{{ path('app_cat_show', {'id': cat.id}) }}">show</a>
+                    <a href="{{ path('app_cat_edit', {'id': cat.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_cat_new') }}">Create new</a>
+{% endblock %}
