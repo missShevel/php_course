@@ -24,4 +24,26 @@ class ReturnBook
     {
         return $this->id;
     }
+
+    public function getIssue(): ?Issue
+    {
+        return $this->issue;
+    }
+
+    public function setIssue(Issue $issue): self
+    {
+        $this->issue = $issue;
+        return $this;
+    }
+
+    public function getReturnDate(): ?\DateTimeInterface
+    {
+        return $this->returnedAt;
+    }
+
+    public function setReturnDate(\DateTimeInterface $returnedAt): self
+    {
+        $this->returnedAt = $returnedAt;
+        return $this;
+    }
 }

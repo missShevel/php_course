@@ -23,8 +23,42 @@ class Issue
 
     #[ORM\Column(type: "datetime")]
     private \DateTimeInterface $issuedAt;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getBook(): ?Book
+    {
+        return $this->book;
+    }
+
+    public function setBook(?Book $book): self
+    {
+        $this->book = $book;
+        return $this;
+    }
+
+    public function getReader(): ?Reader
+    {
+        return $this->reader;
+    }
+
+    public function setReader(?Reader $reader): self
+    {
+        $this->reader = $reader;
+        return $this;
+    }
+
+    public function getIssueDate(): ?\DateTimeInterface
+    {
+        return $this->issuedAt;
+    }
+
+    public function setIssueDate(\DateTimeInterface $issuedAt): self
+    {
+        $this->issuedAt = $issuedAt;
+        return $this;
     }
 }
