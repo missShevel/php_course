@@ -36,12 +36,12 @@ class ReturnBook
         return $this;
     }
 
-    public function getReturnDate(): ?\DateTimeInterface
+    public function getReturnedAt(): ?\DateTimeInterface
     {
         return $this->returnedAt;
     }
 
-    public function setReturnDate(\DateTimeInterface $returnedAt): self
+    public function setReturnedAt(\DateTimeInterface $returnedAt): self
     {
         $this->returnedAt = $returnedAt;
         return $this;

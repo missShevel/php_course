@@ -11,17 +11,21 @@ class Issue
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    #[Groups(['issue:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Book::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['issue:read'])]
     private Book $book;
 
     #[ORM\ManyToOne(targetEntity: Reader::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['issue:read'])]
     private Reader $reader;
 
     #[ORM\Column(type: "datetime")]
+    #[Groups(['issue:read'])]
     private \DateTimeInterface $issuedAt;
 
     public function getId(): ?int
@@ -51,12 +55,12 @@ class Issue
         return $this;
     }
 
-    public function getIssueDate(): ?\DateTimeInterface
+    public function getIssuedAt(): ?\DateTimeInterface
     {
         return $this->issuedAt;
     }
 
-    public function setIssueDate(\DateTimeInterface $issuedAt): self
+    public function setIssuedAt(\DateTimeInterface $issuedAt): self
     {
         $this->issuedAt = $issuedAt;
         return $this;

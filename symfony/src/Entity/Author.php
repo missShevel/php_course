@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\AuthorRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 #[ORM\Entity(repositoryClass: AuthorRepository::class)]
 class Author
@@ -11,12 +13,21 @@ class Author
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    /**
+     * @Groups({"book:read", "author:read"})
+     */
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+        /**
+     * @Groups({"book:read", "author:read"})
+     */
     private string $name;
 
     #[ORM\Column(type: "date", nullable: true)]
+        /**
+     * @Groups({"book:read", "author:read"})
+     */
     private ?\DateTimeInterface $birthDate = null;
 
     public function getId(): ?int
@@ -34,5 +45,16 @@ class Author
         $this->name = $name;
         return $this;
     }
+
+    public function getBirthDate(): ?\DateTimeInterface
+{
+    return $this->birthDate;
+}
+
+public function setBirthDate(\DateTimeInterface $birthDate): self
+{
+    $this->birthDate = $birthDate;
+    return $this;
+}
 
 }
