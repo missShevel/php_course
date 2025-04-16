@@ -6,57 +6,69 @@ use Illuminate\Http\Request;
 use App\Models\ReturnBook;
 
 
+use Illuminate\Support\Facades\Log;
+
 class ReturnController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return ReturnBook::all();
     }
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'issue_id' => 'required|exists:issues,id',
-            'returned_at' => 'required|date',
-        ]);
+        try {
+            $validated = $request->validate([
+                'issue_id' => 'required|exists:issues,id',
+                'returned_at' => 'required|date',
+            ]);
 
-        return ReturnBook::create($validated);
+            $return = ReturnBook::create($validated);
+            Log::info('Return recorded', ['id' => $return->id]);
+
+            return $return;
+        } catch (\Throwable $e) {
+            Log::error('Return creation failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to record return'], 500);
+        }
     }
 
-
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        return $return;
+        return ReturnBook::findOrFail($id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'issue_id' => 'required|exists:issues,id',
-            'returned_at' => 'required|date',
-        ]);
+        try {
+            $return = ReturnBook::findOrFail($id);
 
-        $return->update($validated);
-        return $return;
+            $validated = $request->validate([
+                'issue_id' => 'exists:issues,id',
+                'returned_at' => 'date',
+            ]);
+
+            $return->update($validated);
+            Log::info('Return updated', ['id' => $return->id]);
+
+            return $return;
+        } catch (\Throwable $e) {
+            Log::error('Return update failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to update return'], 500);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $return->delete();
-        return response()->noContent();
+        try {
+            $return = ReturnBook::findOrFail($id);
+            $return->delete();
+            Log::info('Return deleted', ['id' => $id]);
+
+            return response()->noContent();
+        } catch (\Throwable $e) {
+            Log::error('Return deletion failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to delete return'], 500);
+        }
     }
 }

@@ -1,63 +1,96 @@
 <?php
-
 namespace App\Http\Controllers;
+
 use App\Models\Book;
-
-
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Exception;
 
 class BookController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return Book::all();    }
+        return Book::all();
+    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author_id' => 'required|exists:authors,id',
-        ]);
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255|unique:books,title',
+                'author_id' => 'required|exists:authors,id',
+                'published_year' => 'nullable|integer|min:0|max:' . date('Y'),
+            ]);
 
-        return Book::create($validated);
+            $book = Book::create($validated);
+
+            Log::info('Book created', ['book_id' => $book->id]);
+
+            return response()->json($book, Response::HTTP_CREATED);
+        } catch (Exception $e) {
+            Log::error('Failed to create book', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to create book'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
+        $book = Book::find($id);
+
+        if (!$book) {
+            Log::warning("Book not found", ['book_id' => $id]);
+            return response()->json(['message' => 'Book not found'], Response::HTTP_NOT_FOUND);
+        }
+
         return $book;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        Log::info("123123123");
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author_id' => 'exists:authors,id',
-            'published_year' => 'integer'
-        ]);
+        try {
+            $book = Book::find($id);
 
-        $book->update($validated);
-        return $book;
+            if (!$book) {
+                Log::warning("Attempted to update non-existent book", ['book_id' => $id]);
+                return response()->json(['message' => 'Book not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            $validated = $request->validate([
+                'title' => 'string|max:255|unique:books,title' . $book->id,
+                'author_id' => 'exists:authors,id',
+                'published_year' => 'nullable|integer|min:0|max:' . date('Y'),
+            ]);
+
+            $book->update($validated);
+
+            Log::info('Book updated', ['book_id' => $book->id]);
+
+            return response()->json($book);
+        } catch (Exception $e) {
+            Log::error('Failed to update book', ['book_id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to update book'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(string $id)
     {
-        $book->delete();
-        return response()->noContent();
+        try {
+            $book = Book::find($id);
+
+            if (!$book) {
+                Log::warning("Attempted to delete non-existent book", ['book_id' => $id]);
+                return response()->json(['message' => 'Book not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            $book->delete();
+
+            Log::info('Book deleted', ['book_id' => $id]);
+
+            return response()->noContent();
+        } catch (Exception $e) {
+            Log::error('Failed to delete book', ['book_id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['message' => 'Failed to delete book'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

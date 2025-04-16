@@ -6,57 +6,69 @@ use App\Models\Reader;
 
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Log;
+
 class ReaderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return Reader::all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:readers,email',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:readers,email',
+            ]);
 
-        return Reader::create($validated);
+            $reader = Reader::create($validated);
+            Log::info('Reader created', ['id' => $reader->id]);
+
+            return $reader;
+        } catch (\Throwable $e) {
+            Log::error('Reader creation failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to create reader'], 500);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        return $reader;
+        return Reader::findOrFail($id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:readers,email,' . $reader->id,
-        ]);
+        try {
+            $reader = Reader::findOrFail($id);
 
-        $reader->update($validated);
-        return $reader;
+            $validated = $request->validate([
+                'name' => 'string|max:255',
+                'email' => 'email|unique:readers,email,' . $reader->id,
+            ]);
+
+            $reader->update($validated);
+            Log::info('Reader updated', ['id' => $reader->id]);
+
+            return $reader;
+        } catch (\Throwable $e) {
+            Log::error('Reader update failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to update reader'], 500);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $reader->delete();
-        return response()->noContent();
+        try {
+            $reader = Reader::findOrFail($id);
+            $reader->delete();
+            Log::info('Reader deleted', ['id' => $id]);
+
+            return response()->noContent();
+        } catch (\Throwable $e) {
+            Log::error('Reader deletion failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to delete reader'], 500);
+        }
     }
 }

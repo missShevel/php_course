@@ -6,59 +6,72 @@ use App\Models\Issue;
 
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Log;
+
 class IssueController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return Issue::all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'book_id' => 'required|exists:books,id',
-            'reader_id' => 'required|exists:readers,id',
-            'issued_at' => 'required|date',
-        ]);
+        try {
+            $validated = $request->validate([
+                'book_id' => 'required|exists:books,id',
+                'reader_id' => 'required|exists:readers,id',
+                'issued_at' => 'required|date',
+            ]);
 
-        return Issue::create($validated);
+            $issue = Issue::create($validated);
+            Log::info('Issue created', ['id' => $issue->id]);
+
+            return $issue;
+        } catch (\Throwable $e) {
+            Log::error('Issue creation failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to create issue'], 500);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        return $issue;
+        return Issue::findOrFail($id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'book_id' => 'required|exists:books,id',
-            'reader_id' => 'required|exists:readers,id',
-            'issued_at' => 'required|date',
-        ]);
+        try {
+            $issue = Issue::findOrFail($id);
 
-        $issue->update($validated);
-        return $issue;
+            $validated = $request->validate([
+                'book_id' => 'exists:books,id',
+                'reader_id' => 'exists:readers,id',
+                'issued_at' => 'date',
+            ]);
+
+            $issue->update($validated);
+            Log::info('Issue updated', ['id' => $issue->id]);
+
+            return $issue;
+        } catch (\Throwable $e) {
+            Log::error('Issue update failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to update issue'], 500);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $issue->delete();
-        return response()->noContent();
+        try {
+            $issue = Issue::findOrFail($id);
+            $issue->delete();
+            Log::info('Issue deleted', ['id' => $id]);
+
+            return response()->noContent();
+        } catch (\Throwable $e) {
+            Log::error('Issue deletion failed', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to delete issue'], 500);
+        }
     }
 }
+
