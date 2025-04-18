@@ -40,4 +40,27 @@ class AuthorRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+public function findByFilters(array $filters): array
+{
+    $qb = $this->createQueryBuilder('b');
+
+    if (!empty($filters['name'])) {
+        $qb->andWhere('b.name LIKE :name')
+           ->setParameter('name', '%' . $filters['name'] . '%');
+    }
+
+
+    if (!empty($filters['birth_date'])) {
+        $publishedAt = \DateTime::createFromFormat('Y-m-d', $filters['birth_date']);
+
+        if ($publishedAt) {
+            // Match full date
+            $qb->andWhere('b.birthDate = :birth_date')
+                ->setParameter('birth_date', $publishedAt->format('Y-m-d'));
+        }
+    }
+
+    return $qb->getQuery()->getResult();
+}
 }
