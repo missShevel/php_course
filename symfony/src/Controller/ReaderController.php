@@ -17,10 +17,15 @@ class ReaderController extends AbstractController
      * @Route("/api/readers", methods={"GET"})
      */
     #[Route('', methods: ['GET'])]
-    public function index(ReaderRepository $readerRepository): JsonResponse
+    public function index(Request $request,ReaderRepository $readerRepository): JsonResponse
     {
-        $readers = $readerRepository->findAll();
-        return $this->json($readers);
+        $filters = [
+            'name' => $request->query->get('name'),
+            'email' => $request->query->get('email'),
+
+        ];
+        $readers = $readerRepository->findByFilters($filters);
+        return $this->json($readers, 200);
     }
 
     /**

@@ -40,4 +40,25 @@ class ReturnBookRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+public function findByFilters(array $filters): array
+{
+    $qb = $this->createQueryBuilder('r');
+
+    if (!empty($filters['issue_id'])) {
+        $qb->andWhere('r.issue = :issue_id')
+        ->setParameter('issue_id', $filters['issue_id']);
+    }
+
+    if (!empty($filters['returned_at'])) {
+        $returnedAt = \DateTime::createFromFormat('Y-m-d', $filters['returned_at']);
+
+        if ($returnedAt) {
+            // Match full date
+            $qb->andWhere('r.returnedAt = :returned_at')
+                ->setParameter('returned_at', $returnedAt->format('Y-m-d'));
+        }
+    }
+    return $qb->getQuery()->getResult();
+}
 }

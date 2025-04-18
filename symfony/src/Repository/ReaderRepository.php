@@ -40,4 +40,22 @@ class ReaderRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+public function findByFilters(array $filters): array
+{
+    $qb = $this->createQueryBuilder('r');
+
+    if (!empty($filters['name'])) {
+        $qb->andWhere('r.name LIKE :name')
+           ->setParameter('name', '%' . $filters['name'] . '%');
+    }
+
+
+    if (!empty($filters['email'])) {
+        $qb->andWhere('r.email LIKE :email')
+           ->setParameter('email', '%' . $filters['email'] . '%');
+    }
+
+    return $qb->getQuery()->getResult();
+}
 }
