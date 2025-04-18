@@ -3,13 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Reader;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Repository\BaseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Reader>
  */
-class ReaderRepository extends ServiceEntityRepository
+class ReaderRepository extends BaseRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -41,9 +41,9 @@ class ReaderRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-public function findByFilters(array $filters): array
+public function findFilteredPaginated(array $filters, int $page, int $itemsPerPage): array
 {
-    $qb = $this->createQueryBuilder('r');
+    $qb = $this->createQueryBuilder('r')->orderBy('r.id', 'ASC');
 
     if (!empty($filters['name'])) {
         $qb->andWhere('r.name LIKE :name')
@@ -56,6 +56,6 @@ public function findByFilters(array $filters): array
            ->setParameter('email', '%' . $filters['email'] . '%');
     }
 
-    return $qb->getQuery()->getResult();
+    return $this->paginate($qb, $page, $itemsPerPage);
 }
 }

@@ -30,7 +30,10 @@ class IssueController extends AbstractController
             'issued_at' => $request->query->get('issued_at'),
         ];
 
-        $issues = $issueRepository->findByFilters($filters);
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
+
+        $issues = $issueRepository->findFilteredPaginated($filters, $page, $limit);
         return $this->json($issues, 200, ['groups' => '*']);
     }
 

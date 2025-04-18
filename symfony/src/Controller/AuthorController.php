@@ -22,7 +22,11 @@ class AuthorController extends AbstractController
             'name' => $request->query->get('name'),
             'birth_date' => $request->query->get('birth_date'),
         ];
-        $authors = $authorRepository->findByFilters($filters);
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
+
+        $authors = $authorRepository->findFilteredPaginated($filters, $page, $limit);
         return $this->json($authors, 200);
     }
 

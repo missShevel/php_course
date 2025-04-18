@@ -26,7 +26,11 @@ class BookController extends AbstractController
             'published_at' => $request->query->get('published_at'),
             'author_id' => $request->query->get('author_id'),
         ];
-        $books = $bookRepository->findByFilters($filters);
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
+
+        $books = $bookRepository->findFilteredPaginated($filters, $page, $limit);
         return $this->json($books, 200, ['groups' => 'book:read']);
     }
 

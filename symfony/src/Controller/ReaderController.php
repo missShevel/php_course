@@ -24,7 +24,11 @@ class ReaderController extends AbstractController
             'email' => $request->query->get('email'),
 
         ];
-        $readers = $readerRepository->findByFilters($filters);
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
+
+        $readers = $readerRepository->findFilteredPaginated($filters, $page, $limit);
         return $this->json($readers, 200);
     }
 

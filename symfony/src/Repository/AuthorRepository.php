@@ -3,13 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Author;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Repository\BaseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Author>
  */
-class AuthorRepository extends ServiceEntityRepository
+class AuthorRepository extends BaseRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -41,12 +41,12 @@ class AuthorRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-public function findByFilters(array $filters): array
+public function findFilteredPaginated(array $filters, int $page, int $itemsPerPage): array
 {
-    $qb = $this->createQueryBuilder('b');
+    $qb = $this->createQueryBuilder('a')->orderBy('a.id', 'ASC');
 
     if (!empty($filters['name'])) {
-        $qb->andWhere('b.name LIKE :name')
+        $qb->andWhere('a.name LIKE :name')
            ->setParameter('name', '%' . $filters['name'] . '%');
     }
 
@@ -56,11 +56,12 @@ public function findByFilters(array $filters): array
 
         if ($publishedAt) {
             // Match full date
-            $qb->andWhere('b.birthDate = :birth_date')
+            $qb->andWhere('a.birthDate = :birth_date')
                 ->setParameter('birth_date', $publishedAt->format('Y-m-d'));
         }
     }
 
-    return $qb->getQuery()->getResult();
+    return $this->paginate($qb, $page, $itemsPerPage);
 }
+
 }

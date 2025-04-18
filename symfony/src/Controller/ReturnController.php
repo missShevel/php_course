@@ -24,7 +24,11 @@ class ReturnController extends AbstractController
             'issue_id' => $request->query->get('issue_id'),
             'returned_at' => $request->query->get('returned_at'),
         ];
-        $returns = $returnBookRepository->findByFilters($filters);
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
+
+        $returns = $returnBookRepository->findFilteredPaginated($filters, $page, $limit);
         return $this->json($returns, 200);
     }
 
