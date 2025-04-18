@@ -10,9 +10,21 @@ use Illuminate\Support\Facades\Log;
 
 class ReturnController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return ReturnBook::all();
+        $query = ReturnBook::query(); 
+        if ($request->has('issue_id')) {
+            $query->where('issue_id', $request->query('issue_id'));
+        }
+    
+        if ($request->has('returned_at')) {
+            $query->whereDate('returned_at', $request->query('returned_at'));
+        }
+
+        $perPage = $request->get('itemsPerPage', 10); // Default 10 per page
+        $returns = $query->paginate($perPage);
+    
+        return response()->json($returns);
     }
 
     public function store(Request $request)
@@ -29,7 +41,7 @@ class ReturnController extends Controller
             return $return;
         } catch (\Throwable $e) {
             Log::error('Return creation failed', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Failed to record return'], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 

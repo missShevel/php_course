@@ -10,9 +10,22 @@ use Illuminate\Support\Facades\Log;
 
 class ReaderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Reader::all();
+        $query = Reader::query();
+    
+        if ($request->has('name')) {
+            $query->where('name', 'like', '%' . $request->query('name') . '%');
+        }
+    
+        if ($request->has('email')) {
+            $query->where('email', 'like', '%' . $request->query('email') . '%');
+        }
+    
+        $perPage = $request->get('itemsPerPage', 10); // Default 10 per page
+        $readers = $query->paginate($perPage);
+
+        return response()->json($readers);
     }
 
     public function store(Request $request)
