@@ -3,13 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\ReturnBook;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Repository\BaseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<ReturnBook>
  */
-class ReturnBookRepository extends ServiceEntityRepository
+class ReturnBookRepository extends BaseRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -40,4 +40,25 @@ class ReturnBookRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+public function findFilteredPaginated(array $filters, int $page, int $itemsPerPage): array
+{
+    $qb = $this->createQueryBuilder('r')->orderBy('r.id', 'ASC');
+
+    if (!empty($filters['issue_id'])) {
+        $qb->andWhere('r.issue = :issue_id')
+        ->setParameter('issue_id', $filters['issue_id']);
+    }
+
+    if (!empty($filters['returned_at'])) {
+        $returnedAt = \DateTime::createFromFormat('Y-m-d', $filters['returned_at']);
+
+        if ($returnedAt) {
+            // Match full date
+            $qb->andWhere('r.returnedAt = :returned_at')
+                ->setParameter('returned_at', $returnedAt->format('Y-m-d'));
+        }
+    }
+    return $this->paginate($qb, $page, $itemsPerPage);
+}
 }

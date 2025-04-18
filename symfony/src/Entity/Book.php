@@ -20,6 +20,10 @@ class Book
     #[Groups(['issue:read', 'book:read'])]
     private string $title;
 
+    #[ORM\Column(length: 255)]
+    #[Groups(['issue:read', 'book:read'])]
+    private string $genre;
+
     #[ORM\ManyToOne(targetEntity: Author::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['issue:read', 'book:read'])]
@@ -27,7 +31,7 @@ class Book
 
     #[ORM\Column(type: "date", nullable: true)]
     #[Groups(['issue:read', 'book:read'])]
-    private ?\DateTimeInterface $publishedAt = null;
+    private ?\DateTimeInterface $published_at = null;
 
     public function getId(): ?int
     {
@@ -39,12 +43,22 @@ class Book
         return $this->title;
     }
 
+    public function getGenre(): ?string
+    {
+        return $this->genre;
+    }
+
     public function setTitle(string $title): self
     {
         $this->title = $title;
         return $this;
     }
 
+    public function setGenre(string $genre): self
+    {
+        $this->genre = $genre;
+        return $this;
+    }
     public function getAuthor(): ?Author
     {
         return $this->author;
@@ -56,14 +70,14 @@ class Book
         return $this;
     }
 
-    public function getPublishedAt(): ?int
+    public function getPublishedAt(): ?\DateTime
     {
-        return $this->publishedAt;
+        return $this->published_at;
     }
 
-    public function setPublishedAt(?int $publishedAt): self
+    public function setPublishedAt(?DateTime $published_at): \DateTime
     {
-        $this->publishedAt = $publishedAt;
+        $this->published_at = $published_at;
         return $this;
     }
 }

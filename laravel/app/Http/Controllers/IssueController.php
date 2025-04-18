@@ -10,9 +10,26 @@ use Illuminate\Support\Facades\Log;
 
 class IssueController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Issue::all();
+        $query = Issue::query();
+    
+        if ($request->has('book_id')) {
+            $query->where('book_id', $request->query('book_id'));
+        }
+    
+        if ($request->has('reader_id')) {
+            $query->where('reader_id', $request->query('reader_id'));
+        }
+    
+        if ($request->has('issued_at')) {
+            $query->whereDate('issued_at', $request->query('issued_at'));
+        }
+
+        $perPage = $request->get('itemsPerPage', 10); // Default 10 per page
+        $issues = $query->paginate($perPage);
+    
+        return response()->json($issues);
     }
 
     public function store(Request $request)

@@ -9,16 +9,37 @@ use Exception;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Book::all();
+        $query = Book::query();
+    
+        if ($request->filled('title')) {
+            $query->where('title', 'like', '%' . $request->title . '%');
+        }
+    
+        if ($request->filled('published_year')) {
+            $query->whereDate('published_year', $request->published_at);
+        }
+    
+        if ($request->filled('author_id')) {
+            $query->where('author_id', $request->author_id);
+        }
+
+        // Pagination
+        $perPage = $request->get('itemsPerPage', 10); // Default 10 per page
+        $books = $query->paginate($perPage);
+
+            
+        return response()->json($books);
     }
+    
 
     public function store(Request $request)
     {
         try {
             $validated = $request->validate([
                 'title' => 'required|string|max:255|unique:books,title',
+                'genre'=> 'string|max:255',
                 'author_id' => 'required|exists:authors,id',
                 'published_year' => 'nullable|integer|min:0|max:' . date('Y'),
             ]);
@@ -58,6 +79,7 @@ class BookController extends Controller
 
             $validated = $request->validate([
                 'title' => 'string|max:255|unique:books,title' . $book->id,
+                'genre'=> 'string|max:255',
                 'author_id' => 'exists:authors,id',
                 'published_year' => 'nullable|integer|min:0|max:' . date('Y'),
             ]);

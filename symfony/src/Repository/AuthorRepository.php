@@ -3,13 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Author;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Repository\BaseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Author>
  */
-class AuthorRepository extends ServiceEntityRepository
+class AuthorRepository extends BaseRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -40,4 +40,28 @@ class AuthorRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+public function findFilteredPaginated(array $filters, int $page, int $itemsPerPage): array
+{
+    $qb = $this->createQueryBuilder('a')->orderBy('a.id', 'ASC');
+
+    if (!empty($filters['name'])) {
+        $qb->andWhere('a.name LIKE :name')
+           ->setParameter('name', '%' . $filters['name'] . '%');
+    }
+
+
+    if (!empty($filters['birth_date'])) {
+        $publishedAt = \DateTime::createFromFormat('Y-m-d', $filters['birth_date']);
+
+        if ($publishedAt) {
+            // Match full date
+            $qb->andWhere('a.birthDate = :birth_date')
+                ->setParameter('birth_date', $publishedAt->format('Y-m-d'));
+        }
+    }
+
+    return $this->paginate($qb, $page, $itemsPerPage);
+}
+
 }

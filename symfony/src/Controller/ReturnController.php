@@ -18,10 +18,18 @@ class ReturnController extends AbstractController
      * @Route("/api/returns", methods={"GET"})
      */
     #[Route('', methods: ['GET'])]
-    public function index(ReturnBookRepository $returnBookRepository): JsonResponse
+    public function index(Request $request, ReturnBookRepository $returnBookRepository): JsonResponse
     {
-        $returns = $returnBookRepository->findAll();
-        return $this->json($returns);
+        $filters = [
+            'issue_id' => $request->query->get('issue_id'),
+            'returned_at' => $request->query->get('returned_at'),
+        ];
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
+
+        $returns = $returnBookRepository->findFilteredPaginated($filters, $page, $limit);
+        return $this->json($returns, 200);
     }
 
     /**

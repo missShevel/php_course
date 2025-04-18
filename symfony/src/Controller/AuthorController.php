@@ -16,9 +16,18 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class AuthorController extends AbstractController
 {
     #[Route('', methods: ['GET'])]
-    public function index(AuthorRepository $authorRepository): JsonResponse
+    public function index(Request $request, AuthorRepository $authorRepository): JsonResponse
     {
-        return $this->json($authorRepository->findAll());
+        $filters = [
+            'name' => $request->query->get('name'),
+            'birth_date' => $request->query->get('birth_date'),
+        ];
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
+
+        $authors = $authorRepository->findFilteredPaginated($filters, $page, $limit);
+        return $this->json($authors, 200);
     }
 
     #[Route('', methods: ['POST'])]

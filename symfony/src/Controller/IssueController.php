@@ -22,11 +22,18 @@ class IssueController extends AbstractController
      * @Route("/api/issues", methods={"GET"})
      */
     #[Route('', methods: ['GET'])]
-    public function index(IssueRepository $issueRepository, SerializerInterface $serializer, LoggerInterface $logger): JsonResponse
+    public function index(Request $request, IssueRepository $issueRepository, SerializerInterface $serializer, LoggerInterface $logger): JsonResponse
     {
-        $issues = $issueRepository->findAll();
-        $logger->info(count($issues));
+        $filters = [
+            'book_id' => $request->query->get('book_id'),
+            'reader_id' => $request->query->get('reader_id'),
+            'issued_at' => $request->query->get('issued_at'),
+        ];
 
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
+
+        $issues = $issueRepository->findFilteredPaginated($filters, $page, $limit);
         return $this->json($issues, 200, ['groups' => '*']);
     }
 

@@ -18,9 +18,19 @@ class BookController extends AbstractController
      * @Route("/api/books", methods={"GET"})
      */
     #[Route('', methods: ['GET'])]
-    public function index(BookRepository $bookRepository): JsonResponse
+    public function index(Request $request, BookRepository $bookRepository): JsonResponse
     {
-        $books = $bookRepository->findAll();
+        $filters = [
+            'title' => $request->query->get('title'),
+            'genre' => $request->query->get('genre'),
+            'published_at' => $request->query->get('published_at'),
+            'author_id' => $request->query->get('author_id'),
+        ];
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
+
+        $books = $bookRepository->findFilteredPaginated($filters, $page, $limit);
         return $this->json($books, 200, ['groups' => 'book:read']);
     }
 

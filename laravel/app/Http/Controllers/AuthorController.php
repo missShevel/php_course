@@ -9,9 +9,23 @@ use Illuminate\Support\Facades\Log;
 
 class AuthorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Author::all();
+        $query = Author::query();
+    
+        if ($request->has('name')) {
+            $query->where('name', 'like', '%' . $request->query('name') . '%');
+        }
+    
+        if ($request->has('birth_date')) {
+            $query->whereDate('birth_date', $request->query('birth_date'));
+        }
+
+        // Pagination
+        $perPage = $request->get('itemsPerPage', 10); // Default 10 per page
+        $authors = $query->paginate($perPage);
+    
+        return response()->json($authors);
     }
 
     public function store(Request $request)
