@@ -15,4 +15,9 @@ class ReturnBook extends Model
         'issue_id',
         'returned_at',
     ];
+
+    public function issue()
+{
+    return $this->belongsTo(Issue::class);
+}
 }

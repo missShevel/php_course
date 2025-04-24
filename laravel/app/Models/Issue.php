@@ -17,4 +17,9 @@ class Issue extends Model
         'reader_id',
         'issued_at'
     ];
+
+    public function reader()
+{
+    return $this->belongsTo(Reader::class, 'reader_id');
+}
 }

@@ -16,13 +16,17 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required', 'email' => 'required|email|unique:users',
-            'password' => 'required|min:6', 'role' => 'in:Client,Manager,Admin'
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'role' => 'in:Client,Manager,Admin'
         ]);
 
         $user = User::create([
-            'name' => $request->name, 'email' => $request->email,
-            'password' => Hash::make($request->password), 'role' => $request->role ?? 'Client'
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password), 
+            'role' => $request->role ?? 'Client'
         ]);
 
         return response()->json($user, 201);
@@ -41,7 +45,7 @@ class AuthController extends Controller
             $user = auth()->user();
 
             // (optional) Attach the role to the token.
-            // $token = JWTAuth::claims(['role' => $user->role])->fromUser($user);
+            $token = JWTAuth::claims(['role' => $user->role])->fromUser($user);
 
             return response()->json(compact('token'));
         } catch (JWTException $e) {
