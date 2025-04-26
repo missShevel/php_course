@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Issue;
+use App\Entity\User;
 use App\Repository\BaseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -41,9 +42,16 @@ class IssueRepository extends BaseRepository
 //        ;
 //    }
 
-public function findFilteredPaginated(array $filters, int $page, int $itemsPerPage): array
+public function findFilteredPaginated(array $filters, int $page, int $itemsPerPage, ?User $client_user): array
 {
     $qb = $this->createQueryBuilder('i')->orderBy('i.id', 'ASC');
+
+    if($client_user)
+    {
+        $qb->join('i.reader', 'r')
+        ->where('r.user = :user')
+        ->setParameter('user', $client_user);
+    }
 
     if (!empty($filters['book_id'])) {
         $qb->andWhere('i.book = :book_id')

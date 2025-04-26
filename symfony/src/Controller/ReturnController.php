@@ -64,6 +64,7 @@ class ReturnController extends AbstractController
      * @Route("/api/returns/{id}", methods={"GET"})
      */
     #[Route('/{id}', methods: ['GET'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function show($id, ReturnBookRepository $returnBookRepository): JsonResponse
     {
         $return = $returnBookRepository->find($id);
@@ -79,6 +80,7 @@ class ReturnController extends AbstractController
      * @Route("/api/returns/{id}", methods={"PUT"})
      */    
     #[Route('/{id}', methods: ['PUT'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function update($id, Request $request, EntityManagerInterface $em, ReturnBookRepository $returnBookRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

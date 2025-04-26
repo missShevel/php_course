@@ -11,6 +11,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+
 
 #[Route('/api/authors')]
 class AuthorController extends AbstractController
@@ -31,12 +34,19 @@ class AuthorController extends AbstractController
     }
 
     #[Route('', methods: ['POST'])]
-    public function store(
+    #[IsGranted('ADMIN_OR_MANAGER')]
+        public function store(
         Request $request,
         EntityManagerInterface $em,
         ValidatorInterface $validator,
         SerializerInterface $serializer
     ): JsonResponse {
+
+        $user = $this->getUser();
+    if (!$user) {
+        return $this->json(['error' => 'Authentication failed, no user found'], 401); // Or use dd('No user');
+    }
+    // Dump the roles Symfony thinks the user has *at this point*
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['name'], $data['birth_date'])) {
@@ -64,6 +74,8 @@ class AuthorController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['GET'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
+
     public function show(Author $author = null): JsonResponse
     {
         if (!$author) {
@@ -74,6 +86,8 @@ class AuthorController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['PUT'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
+
     public function update(
         Author $author = null,
         Request $request,
@@ -104,6 +118,8 @@ class AuthorController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
+
     public function destroy(Author $author = null, EntityManagerInterface $em): JsonResponse
     {
         if (!$author) {

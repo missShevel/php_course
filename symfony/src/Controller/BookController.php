@@ -38,6 +38,7 @@ class BookController extends AbstractController
      * @Route("/api/books", methods={"POST"})
      */
     #[Route('', methods: ['POST'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function store(Request $request, EntityManagerInterface $em, AuthorRepository $authorRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -66,6 +67,7 @@ class BookController extends AbstractController
      * @Route("/api/books/{id}", methods={"GET"})
      */
     #[Route('/{id}', methods: ['GET'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function show($id, BookRepository $bookRepository): JsonResponse
     {
         $book = $bookRepository->find($id);
@@ -81,6 +83,7 @@ class BookController extends AbstractController
      * @Route("/api/books/{id}", methods={"PUT"})
      */
     #[Route('/{id}', methods: ['PUT'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function update($id, Request $request, EntityManagerInterface $em, BookRepository $bookRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -104,6 +107,7 @@ class BookController extends AbstractController
      * @Route("/api/books/{id}", methods={"DELETE"})
      */
     #[Route('/{id}', methods: ['DELETE'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function destroy($id, EntityManagerInterface $em, BookRepository $bookRepository): JsonResponse
     {
         $book = $bookRepository->find($id);

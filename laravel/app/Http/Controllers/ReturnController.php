@@ -12,7 +12,16 @@ class ReturnController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user();
+
         $query = ReturnBook::query(); 
+
+        if ($user->role === 'Client') {
+            $query->whereHas('issue', function ($q) use ($user) {
+                $q->where('reader_id', $user->id); // або $user->reader->id, залежно від структури
+            });
+        }
+
         if ($request->has('issue_id')) {
             $query->where('issue_id', $request->query('issue_id'));
         }

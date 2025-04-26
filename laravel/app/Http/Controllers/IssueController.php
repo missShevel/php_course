@@ -12,7 +12,12 @@ class IssueController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user();
         $query = Issue::query();
+
+        if ($user->role === 'Client') {
+            $query->where('reader_id', $user->id); // або $user->reader_id, залежно від зв'язку
+        }
     
         if ($request->has('book_id')) {
             $query->where('book_id', $request->query('book_id'));

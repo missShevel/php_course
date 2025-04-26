@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ReaderRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: ReaderRepository::class)]
 class Reader
@@ -18,6 +19,10 @@ class Reader
 
     #[ORM\Column(length: 255, unique: true)]
     private string $email;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -43,6 +48,17 @@ class Reader
     public function setEmail(string $email): self
     {
         $this->email = $email;
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
         return $this;
     }
 }

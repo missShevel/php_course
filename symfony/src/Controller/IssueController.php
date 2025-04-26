@@ -24,6 +24,15 @@ class IssueController extends AbstractController
     #[Route('', methods: ['GET'])]
     public function index(Request $request, IssueRepository $issueRepository, SerializerInterface $serializer, LoggerInterface $logger): JsonResponse
     {
+        $client_user = null;
+
+          /** @var User $user */
+    $user = $this->getUser();
+
+    if (in_array('ROLE_CLIENT', $user->getRoles(), true)) {
+        // Client: only their own issues
+        $client_user = $user;
+    }
         $filters = [
             'book_id' => $request->query->get('book_id'),
             'reader_id' => $request->query->get('reader_id'),
@@ -33,7 +42,7 @@ class IssueController extends AbstractController
         $page = max(1, (int) $request->query->get('page', 1));
         $limit = max(1, (int) $request->query->get('itemsPerPage', 10));
 
-        $issues = $issueRepository->findFilteredPaginated($filters, $page, $limit);
+        $issues = $issueRepository->findFilteredPaginated($filters, $page, $limit, $client_user);
         return $this->json($issues, 200, ['groups' => '*']);
     }
 
@@ -89,6 +98,7 @@ class IssueController extends AbstractController
      * @Route("/api/issues/{id}", methods={"PUT"})
      */
     #[Route('/{id}', methods: ['PUT'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function update($id, Request $request, EntityManagerInterface $em, IssueRepository $issueRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -113,6 +123,7 @@ class IssueController extends AbstractController
      * @Route("/api/issues/{id}", methods={"DELETE"})
      */
     #[Route('/{id}', methods: ['DELETE'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function destroy($id, EntityManagerInterface $em, IssueRepository $issueRepository): JsonResponse
     {
         $issue = $issueRepository->find($id);
