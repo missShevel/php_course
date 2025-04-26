@@ -89,6 +89,7 @@ class IssueController extends AbstractController
      * @Route("/api/issues/{id}", methods={"PUT"})
      */
     #[Route('/{id}', methods: ['PUT'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function update($id, Request $request, EntityManagerInterface $em, IssueRepository $issueRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -113,6 +114,7 @@ class IssueController extends AbstractController
      * @Route("/api/issues/{id}", methods={"DELETE"})
      */
     #[Route('/{id}', methods: ['DELETE'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function destroy($id, EntityManagerInterface $em, IssueRepository $issueRepository): JsonResponse
     {
         $issue = $issueRepository->find($id);

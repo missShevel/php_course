@@ -17,6 +17,7 @@ class ReaderController extends AbstractController
      * @Route("/api/readers", methods={"GET"})
      */
     #[Route('', methods: ['GET'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function index(Request $request,ReaderRepository $readerRepository): JsonResponse
     {
         $filters = [
@@ -36,6 +37,7 @@ class ReaderController extends AbstractController
      * @Route("/api/readers", methods={"POST"})
      */
     #[Route('', methods: ['POST'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function store(Request $request, EntityManagerInterface $em, REaderRepository $readerRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -64,6 +66,7 @@ class ReaderController extends AbstractController
      * @Route("/api/readers/{id}", methods={"GET"})
      */
     #[Route('/{id}', methods: ['GET'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function show($id, ReaderRepository $readerRepository): JsonResponse
     {
         $reader = $readerRepository->find($id);
@@ -79,6 +82,7 @@ class ReaderController extends AbstractController
      * @Route("/api/readers/{id}", methods={"PUT"})
      */
     #[Route('/{id}', methods: ['PUT'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function update($id, Request $request, EntityManagerInterface $em, ReaderRepository $readerRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -102,6 +106,7 @@ class ReaderController extends AbstractController
      * @Route("/api/readers/{id}", methods={"DELETE"})
      */
     #[Route('/{id}', methods: ['DELETE'])]
+    #[IsGranted('ADMIN_OR_MANAGER')]
     public function destroy($id, EntityManagerInterface $em, ReaderRepository $readerRepository): JsonResponse
     {
         $reader = $readerRepository->find($id);
