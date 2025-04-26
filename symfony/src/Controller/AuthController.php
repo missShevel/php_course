@@ -15,6 +15,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Security;
 use App\Enum\UserRole;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+
 
 class AuthController extends AbstractController
 {
@@ -28,14 +31,18 @@ class AuthController extends AbstractController
     }
 
     #[Route("/api/register", name:"api_register", methods:["POST"])]
-    public function register(Request $request): JsonResponse
+    #[IsGranted('ADMIN_OR_MANAGER')]
+    public function register(Request $request, TokenInterface $token): JsonResponse
     {
+        $loggedUser = $token->getUser();
+        $user_role = $loggedUser->getRoles()[0];
         $data = json_decode($request->getContent(), true);
 
         if (!in_array($data['role'], UserRole::values(), true)) {
             return new JsonResponse(['error' => 'Invalid role specified'], 400);
+        } else if (($data['role'] === 'ROLE_ADMIN' || $data['role'] === 'ROLE_MANAGER') && $user_role !== 'ROLE_ADMIN') {
+            return new JsonResponse(['error' => 'Only admin user can create admin and manager'], 400);
         }
-        
 
         if ($data['password'] !== $data['password_confirmation']) {
             return new JsonResponse(['error' => 'Passwords do not match'], 400);
